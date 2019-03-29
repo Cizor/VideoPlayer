@@ -4,7 +4,6 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -17,8 +16,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView currPosition;
     private Button pauseButton;
     private Button startButton;
-    private Button forwardButton;
-    private Button rewindButton;
+
     private SeekBar seekBar;
     private MediaPlayer mediaPlayer;
     private Handler threadHandler = new Handler();
@@ -28,13 +26,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Button forwardButton;
+        Button rewindButton;
 
         this.maxTime = findViewById(R.id.textView2);
         this.currPosition = findViewById(R.id.textView3);
         this.pauseButton = findViewById(R.id.button3);
         this.startButton = findViewById(R.id.button2);
-        this.forwardButton = findViewById(R.id.button4);
-        this.rewindButton = findViewById(R.id.button);
+        forwardButton = findViewById(R.id.button4);
+        rewindButton = findViewById(R.id.button);
         this.pauseButton.setEnabled(false);
         this.seekBar = findViewById(R.id.seekBar);
         this.seekBar.setClickable(false);
@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         this.mediaPlayer = MediaPlayer.create(this, songId);
         this.duration = this.mediaPlayer.getDuration();
         this.seekBar.setMax(duration);
-        this.forwardButton.setOnLongClickListener(new View.OnLongClickListener() {
+        forwardButton.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 int currentPosition = mediaPlayer.getCurrentPosition();
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        this.rewindButton.setOnLongClickListener(new View.OnLongClickListener() {
+        rewindButton.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 int currentPosition = mediaPlayer.getCurrentPosition();
@@ -73,7 +73,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            private int pro = 0;
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             }
