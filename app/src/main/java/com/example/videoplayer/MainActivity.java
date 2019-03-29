@@ -4,6 +4,7 @@ import android.media.MediaPlayer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -21,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar seekBar;
     private MediaPlayer mediaPlayer;
     private Handler threadHandler = new Handler();
+    private int duration;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
         int songId = this.getResources().getIdentifier("perfect", "raw", this.getPackageName());
         this.mediaPlayer = MediaPlayer.create(this, songId);
+        this.duration = this.mediaPlayer.getDuration();
+        this.seekBar.setMax(duration);
         this.forwardButton.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -66,6 +71,24 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            private int pro = 0;
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                mediaPlayer.seekTo(seekBar.getProgress());
+                if (seekBar.getProgress() == seekBar.getMax()){
+                    mediaPlayer.seekTo(0);
+                }
+            }
+        });
     }
 
     private String msToString(int millisecs){
@@ -75,11 +98,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void doStart(View v){
-        int duration = this.mediaPlayer.getDuration();
         int currentPosition = this.mediaPlayer.getCurrentPosition();
         if (currentPosition == 0){
-            this.seekBar.setMax(duration);
-            String maxTimeString = this.msToString(duration);
+            String maxTimeString = this.msToString(this.duration);
             this.maxTime.setText(maxTimeString);
         } else if(currentPosition == duration){
             this.mediaPlayer.reset();
@@ -90,13 +111,13 @@ public class MainActivity extends AppCompatActivity {
         this.pauseButton.setEnabled(true);
         this.startButton.setEnabled(true);
     }
+
     class UpdateSeekBarThread implements Runnable{
         @Override
         public void run() {
             int currentPosition = mediaPlayer.getCurrentPosition();
             String currPosStr = msToString(currentPosition);
             currPosition.setText(currPosStr);
-
             seekBar.setProgress(currentPosition);
             threadHandler.postDelayed(this, 50);
         }
@@ -122,7 +143,6 @@ public class MainActivity extends AppCompatActivity {
         int currentPosition = mediaPlayer.getCurrentPosition();
         int duration = mediaPlayer.getDuration();
         int ADD_TIME = 5000;
-
         if (currentPosition + ADD_TIME < duration){
             this.mediaPlayer.seekTo(currentPosition+ADD_TIME);
         } else {
