@@ -1,6 +1,9 @@
 package com.example.videoplayer;
 
+import android.content.Context;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,9 +21,12 @@ public class MainActivity extends AppCompatActivity {
     private Button startButton;
 
     private SeekBar seekBar;
+    private SeekBar volumeSeekBar;
     private MediaPlayer mediaPlayer;
     private Handler threadHandler = new Handler();
     private int duration;
+
+    private AudioManager audioManager = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Button forwardButton;
         Button rewindButton;
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         this.maxTime = findViewById(R.id.textView2);
         this.currPosition = findViewById(R.id.textView3);
@@ -36,10 +43,14 @@ public class MainActivity extends AppCompatActivity {
         forwardButton = findViewById(R.id.button4);
         rewindButton = findViewById(R.id.button);
         this.pauseButton.setEnabled(false);
+        this.volumeSeekBar = findViewById(R.id.volumeSeekBar);
+        this.volumeSeekBar.setClickable(false);
+        this.volumeSeekBar.setProgress(audioManager.getStreamVolume(AudioManager.STREAM_MUSIC));
         this.seekBar = findViewById(R.id.seekBar);
         this.seekBar.setClickable(false);
 
         int songId = this.getResources().getIdentifier("perfect", "raw", this.getPackageName());
+        Uri uri = Uri.parse("https://ia802508.us.archive.org/5/items/testmp3testfile/mpthreetest.mp3");
         this.mediaPlayer = MediaPlayer.create(this, songId);
         this.duration = this.mediaPlayer.getDuration();
         this.seekBar.setMax(duration);
@@ -86,6 +97,23 @@ public class MainActivity extends AppCompatActivity {
                 if (seekBar.getProgress() == seekBar.getMax()){
                     mediaPlayer.seekTo(0);
                 }
+            }
+        });
+        volumeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                float volume = (float) (1 - (Math.log(100 - progress) / Math.log(100)));
+                mediaPlayer.setVolume(volume, volume);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
     }
